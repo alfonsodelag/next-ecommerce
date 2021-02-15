@@ -13,4 +13,4 @@ const BasicLayout = (props) => {
     )
 }
 
-export default BasicLayout
+export default BasicLayout;

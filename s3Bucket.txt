@@ -1,0 +1,8 @@
+name s3: alfonso-ecommerce
+
+S3BucketAccessEcommerce
+
+S3
+User: strapi-ecommerce
+Access key ID: AKIAUZOTYQELNGD73JTU
+Secret access key: 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
