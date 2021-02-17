@@ -17,7 +17,7 @@ export default function Auth(props) {
     }
 
     return showLogin ? (
-        <LoginForm showRegisterForm={showRegisterForm} />
+        <LoginForm showRegisterForm={showRegisterForm} onCloseModal={onCloseModal} />
     ) : (
             <RegisterForm showLoginForm={showLoginForm} />
         );
