@@ -4,39 +4,64 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { create } from 'yup/lib/array';
 import useAuth from "../../../hooks/useAuth";
-import { createAddressApi } from "../../../api/address";
+import { createAddressApi, updateAddressApi } from "../../../api/address";
 import { toast } from 'react-toastify';
 
 export default function AddressForm(props) {
-    const { setShowModal } = props;
+    const { setShowModal, setReloadAddresses, newAddress, address } = props;
     const [loading, setLoading] = useState(false);
     const { auth, logout } = useAuth(true);
 
     const formik = useFormik({
-        initialValues: initialValues(),
+        initialValues: initialValues(address),
         validationSchema: Yup.object(validationSchema()),
         onSubmit: (formData) => {
-            createAddress(formData);
-            console.log(formData);
-        }
+            // createAddress(formData);
+            // console.log(formData);
+            newAddress
+                ? createAddress(formData)
+                : updateAddress(formData);
+        },
     })
 
     const createAddress = async (formData) => {
         setLoading(true);
+        console.log(formData);
         /* No podemos modificar el parametro que nos llega, tenemos que usar una nueva 
         variable y allí modificarla */
         const formDataTemp = {
             ...formData,
-            user: auth.idUser,
+            users_permissions_user: auth.idUser,
         };
+        console.log(formDataTemp);
         const response = await createAddressApi(formDataTemp, logout);
         if (!response) {
             toast.warning("Error al crear la dirección");
             setLoading(false);
         } else {
             formik.resetForm();
+            setReloadAddresses(true);
             setLoading(false);
             setShowModal(false); // Para cerrar el modal
+        }
+    }
+
+    const updateAddress = (formData) => {
+        setLoading(true);
+        const formDataTemp = {
+            ...formData,
+            users_permissions_user: auth.idUser
+        };
+        const response = updateAddressApi(address._id, formDataTemp, logout);
+
+        if (!response) {
+            toast.warning("Error al actualizar la dirección");
+            setLoading(false);
+        } else {
+            formik.resetForm();
+            setReloadAddresses(true);
+            setLoading(false);
+            setShowModal(false);
         }
     }
 
@@ -114,22 +139,22 @@ export default function AddressForm(props) {
             </Form.Group>
             <div className="actions">
                 <Button className="submit" type="submit" loading={loading}>
-                    Crear Dirección
+                    {newAddress ? "Crear dirección" : "Actualizar dirección"}
                 </Button>
             </div>
         </Form>
     )
 }
 
-function initialValues() {
+function initialValues(address) {
     return {
-        title: "",
-        name: "",
-        address: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        phone: "",
+        title: address?.title || "",
+        name: address?.name || "",
+        address: address?.address || "",
+        city: address?.city || "",
+        state: address?.state || "",
+        postalCode: address?.postalCode || "",
+        phone: address?.phone || "",
     };
 }
 
